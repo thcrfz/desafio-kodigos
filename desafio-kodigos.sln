@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "os-projeto", "os-projeto", "{20CA3B29-ED80-454D-6D6D-53EE945C29A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{E8A09CAC-91AB-6BC8-0888-853A328C6900}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsApi", "os-projeto\api\OsApi\OsApi.csproj", "{102BA359-CA0F-B4FD-9A08-FA77A1C87198}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{102BA359-CA0F-B4FD-9A08-FA77A1C87198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{102BA359-CA0F-B4FD-9A08-FA77A1C87198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{102BA359-CA0F-B4FD-9A08-FA77A1C87198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{102BA359-CA0F-B4FD-9A08-FA77A1C87198}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E8A09CAC-91AB-6BC8-0888-853A328C6900} = {20CA3B29-ED80-454D-6D6D-53EE945C29A0}
+		{102BA359-CA0F-B4FD-9A08-FA77A1C87198} = {E8A09CAC-91AB-6BC8-0888-853A328C6900}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DF36693-5386-4CC7-A5D7-4504CD3AFEFA}
+	EndGlobalSection
+EndGlobal
