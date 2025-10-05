@@ -103,7 +103,7 @@ def prodPrimeNumbers(n):
         x += 1
     return prod
 
-""" utils """
+""" utils para gerar matrizes aleatorias para teste """
 A, B = 3, 3
 min_value, max_value = -2, 30
 mat = []
@@ -112,6 +112,10 @@ for i in range(A):
     for j in range(B):
         rows.append(random.randint(min_value, max_value))
     mat.append(rows)
+
+""" Matrizes estaticas """
+A, B = 3, 3
+mat = [[7, -2, 4], [1, 10, 3], [6, 5, 0]]
 
 """run"""
 fun1 = concatAndSort([2,4,9,1],[7,3,5,6])
