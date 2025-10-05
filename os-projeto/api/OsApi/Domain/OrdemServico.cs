@@ -10,7 +10,7 @@ namespace OsApi.Domain
 
         public StatusOS Status { get; set; } = StatusOS.Aberta;
 
-        public int? TecnincoId { get; set; }
+        public int? TecnicoId { get; set; }
         public User? Tecnico { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

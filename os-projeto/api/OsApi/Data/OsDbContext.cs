@@ -23,9 +23,12 @@ namespace OsApi.Data
             modelBuilder.Entity<OrdemServico>()
                 .HasOne(o => o.Tecnico)
                 .WithMany()
-                .HasForeignKey(o => o.TecnincoId)
+                .HasForeignKey(o => o.TecnicoId)
                 .OnDelete(DeleteBehavior.Restrict);
             // Os Checklist
+            modelBuilder.Entity<OSChecklist>()
+            .HasKey(x => new { x.OsId, x.ChecklistItemId });
+
             modelBuilder.Entity<OSChecklist>()
                 .HasOne(x => x.OS)
                 .WithMany(o => o.Checks)

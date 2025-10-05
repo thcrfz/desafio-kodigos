@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "sbUPKnmibbSIwhBtnFCXmPA7hh7o4d42u5qcvrlnojw=",
+  "Source": "OsApi",
+  "BasePath": "_content/OsApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "OsApi\\wwwroot",
+      "Source": "OsApi",
+      "ContentRoot": "C:\\Users\\thiag\\Desktop\\desafio-kodigos\\desafio-kodigos\\os-projeto\\api\\OsApi\\wwwroot\\",
+      "BasePath": "_content/OsApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\thiag\\Desktop\\desafio-kodigos\\desafio-kodigos\\os-projeto\\api\\OsApi\\wwwroot\\uploads\\.gitkeep",
+      "SourceId": "OsApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\thiag\\Desktop\\desafio-kodigos\\desafio-kodigos\\os-projeto\\api\\OsApi\\wwwroot\\",
+      "BasePath": "_content/OsApi",
+      "RelativePath": "uploads/.gitkeep",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\.gitkeep"
+    }
+  ]
+}
