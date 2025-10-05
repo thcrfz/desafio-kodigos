@@ -1,0 +1,6 @@
+@OsApi_HostAddress = http://localhost:5253
+
+GET {{OsApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
