@@ -19,6 +19,12 @@ namespace OsApi.Controllers
             _db = db;
         }
 
+        private int? UserId()
+        {
+            var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            return int.TryParse(sub, out var idOk) ? idOk : null;
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOsReq req)
         {
@@ -27,8 +33,7 @@ namespace OsApi.Controllers
                 return BadRequest("O titulo é obrigatorio");
             }
 
-            var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-            int? userId = int.TryParse(sub, out var idOk) ? idOk : null;
+            int? userId = UserId();
 
             if (userId is null)
             {
@@ -42,7 +47,6 @@ namespace OsApi.Controllers
                 }
             }
 
-            // Sem user joga um error
             if (userId is null)
             {
                 return Unauthorized("Não foi possível indetificar o usuário");
@@ -83,6 +87,14 @@ namespace OsApi.Controllers
             if (size < 1 || size > 100) size = 20;
 
             var q = _db.OS.AsNoTracking().Include(o => o.Tecnico).AsQueryable();
+
+            int? userId = UserId();
+
+            if (userId.HasValue && !User.IsInRole("admin"))
+            {
+                q = q.Where(o => o.TecnicoId == userId.Value);
+            }
+
 
             if (!string.IsNullOrWhiteSpace(search))
             {
