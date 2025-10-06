@@ -60,13 +60,15 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, onMounted } from "vue";
-    import { api } from "../../api";
-    import { OsListItem } from '../../models';
-    const items = ref<OsListItem[]>([]);
+import { ref, onMounted } from "vue";
+import { api } from "../../api";
+import { OsListItem } from '../../models';
+const items = ref<OsListItem[]>([]);
 
-    onMounted(async () => {
-        const { data } = await api.get("/os");
-        items.value = data.items as OsListItem[];
-    });
+onMounted(async () => {
+    const { data } = await api.get("/os");
+    console.log(data);
+    
+    items.value = data.items as OsListItem[];
+});
 </script>

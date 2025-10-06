@@ -67,6 +67,7 @@
 import { ref } from "vue";
 import { api, setToken } from "../../api";
 import { useRouter } from "vue-router";
+import { setAuth } from "../../auth";
 
 const router = useRouter();
 const email = ref("");
@@ -82,11 +83,13 @@ async function submit() {
       email: email.value,
       password: password.value,
     });
-    setToken(data.token);
-    localStorage.setItem("auth_token", data.token);
-    localStorage.setItem("auth_user", JSON.stringify(data.user));
+    console.log(data);
+    
+    setAuth(data.token, data.user);
     router.push("/os");
   } catch (e: any) {
+    console.log(e);
+    
     error.value = e?.response?.data ?? "Falha ao entrar";
   } finally {
     loading.value = false;
