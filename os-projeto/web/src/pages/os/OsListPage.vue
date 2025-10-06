@@ -2,9 +2,12 @@
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h4 mb-0">Ordens de Serviço</h1>
-      <router-link to="/os/new" class="btn btn-primary">
-        Nova OS
-      </router-link>
+      <div>
+        <router-link to="/os/new" class="btn btn-primary mx-3">
+             Nova OS
+        </router-link>
+      </div>
+      
     </div>
 
     <div class="card shadow-sm">

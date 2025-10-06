@@ -39,7 +39,6 @@ namespace OsApi.Data
                 .WithMany()
                 .HasForeignKey(x => x.ChecklistItemId);
 
-            // Indice para cada ativo
             modelBuilder.Entity<ChecklistItem>()
                 .HasIndex(ci => ci.Ativo);
 

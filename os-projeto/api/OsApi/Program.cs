@@ -80,6 +80,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<OsDbContext>();
     db.Database.Migrate();
+    ChecklistSeed.Run(db);
 }
 
 app.UseStaticFiles();

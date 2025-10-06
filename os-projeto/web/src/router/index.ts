@@ -4,6 +4,7 @@ const RegisterPage = () => import("../pages/login/RegisterPage.vue");
 const OsListPage = () => import("../pages/os/OsListPage.vue");
 const OsCreatePage = () => import("../pages/os/OsCreatePage.vue");
 const OsEditPage = () => import("../pages/os/OsEditPage.vue");
+const ChecklistPage = () => import("../pages/checklist/ChecklistPage.vue");
 
 const routes = [
   { path: "/login", component: LoginPage },
@@ -11,6 +12,7 @@ const routes = [
   { path: "/os", component: OsListPage, meta: { auth: true } },
   { path: "/os/new", component: OsCreatePage, meta: { auth: true } },
   { path: "/os/:id", component: OsEditPage, meta: { auth: true } },
+  { path: "/checklists", component: ChecklistPage, meta: { auth: true } },
   { path: "/", redirect: "/login" },
   { path: "/:pathMatch(.*)*", redirect: "/login" },
 ];
