@@ -22,7 +22,7 @@ namespace OsApi.Controllers
 
         [HttpPost]
         [RequestSizeLimit(5_000_00)]
-        public async Task<IActionResult> Upload([FromRoute] int id, IFormFile file)
+        public async Task<IActionResult> Upload([FromRoute] int id, IFormFile file, [FromQuery] int? itemId)
         {
             if (file == null || file.Length == 0)
             {
@@ -33,6 +33,15 @@ namespace OsApi.Controllers
             if (os == null)
             {
                 return NotFound("Ordem de serviço não encontrada");
+            }
+
+            if (itemId.HasValue)
+            {
+                var item = await _db.ChecklistItems.FirstOrDefaultAsync(ci => ci.Id == itemId.Value && ci.Ativo);
+                if (item == null)
+                    return BadRequest($"ChecklistItem {itemId} inexistente ou inativo.");
+                if (item.Tipo != TipoChecklist.Foto)
+                    return BadRequest($"ChecklistItem {itemId} não é do tipo Foto.");
             }
 
             var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -52,7 +61,8 @@ namespace OsApi.Controllers
             {
                 OsId = os.Id,
                 Path = $"/uploads/{unique}",
-                UploadedAt = DateTime.UtcNow
+                UploadedAt = DateTime.UtcNow,
+                ChecklistItemId = itemId
             };
 
             _db.OSFotos.Add(foto);
@@ -62,7 +72,8 @@ namespace OsApi.Controllers
             {
                 foto.Id,
                 foto.Path,
-                foto.UploadedAt
+                foto.UploadedAt,
+                foto.ChecklistItemId
             });
         }
     }

@@ -146,7 +146,7 @@ namespace OsApi.Controllers
                 Tecnico = os.Tecnico != null ? new { os.Tecnico.Id, os.Tecnico.Nome, os.Tecnico.Email } : null,
                 os.CreatedAt,
                 os.UpdatedAt,
-                Fotos = os.Fotos.Select(f => new { f.Id, f.Path, f.UploadedAt }),
+                Fotos = os.Fotos.Select(f => new { f.Id, f.Path, f.UploadedAt, f.ChecklistItemId }),
                 Checks = os.Checks.Select(c => new
                 {
                     c.ChecklistItemId,

@@ -9,5 +9,7 @@ namespace OsApi.Domain
 
         public string Path { get; set; } = default!;
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        public int? ChecklistItemId { get; set; }
+        public ChecklistItem? Item { get; set; }
     }
 }

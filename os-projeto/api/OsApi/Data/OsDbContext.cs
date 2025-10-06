@@ -42,6 +42,18 @@ namespace OsApi.Data
             modelBuilder.Entity<ChecklistItem>()
                 .HasIndex(ci => ci.Ativo);
 
+            modelBuilder.Entity<OSFoto>()
+                .HasOne(f => f.Item)
+                .WithMany()
+                .HasForeignKey(f => f.ChecklistItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<OSFoto>()
+                .HasOne(f => f.OS)
+                .WithMany(o => o.Fotos)
+                .HasForeignKey(f => f.OsId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
     }
