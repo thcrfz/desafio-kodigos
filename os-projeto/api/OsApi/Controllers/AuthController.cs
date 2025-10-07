@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using OsApi.Contracts;
 using OsApi.Data;
 using OsApi.Domain;
+using OsApi.Domain.Enums;
 
 namespace OsApi.Controllers
 {
@@ -40,7 +41,8 @@ namespace OsApi.Controllers
             {
                 Email = req.Email.Trim(),
                 Nome = req.Nome.Trim(),
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+                UserRole = UserRole.Tecnico
             };
 
             _db.Users.Add(user);
@@ -66,7 +68,8 @@ namespace OsApi.Controllers
                 {
                     user.Id,
                     user.Email,
-                    user.Nome
+                    user.Nome,
+                    user.UserRole
                 }
             });
         }
@@ -82,6 +85,7 @@ namespace OsApi.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Nome),
+                new Claim(ClaimTypes.Role, user.UserRole.ToString())
             };
 
             var creds = new SigningCredentials(

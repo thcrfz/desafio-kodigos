@@ -90,7 +90,7 @@ namespace OsApi.Controllers
 
             int? userId = UserId();
 
-            if (userId.HasValue && !User.IsInRole("admin"))
+            if (userId.HasValue && !User.IsInRole("Admin"))
             {
                 q = q.Where(o => o.TecnicoId == userId.Value);
             }
@@ -178,25 +178,68 @@ namespace OsApi.Controllers
             return NoContent();
         }
 
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id, [FromBody] UpdateOsReq req)
         {
-            var os = await _db.OS.FirstOrDefaultAsync(o => o.Id == id);
-            if (os == null) return NotFound();
+            var os = await _db.OS
+                .Include(o => o.Fotos)
+                .Include(o => o.Checks)
+                .FirstOrDefaultAsync(o => o.Id == id);
 
-            if (!string.IsNullOrWhiteSpace(req.Titulo)) os.Titulo = req.Titulo.Trim();
-            if (req.Descricao != null) os.Descricao = string.IsNullOrWhiteSpace(req.Descricao) ? null : req.Descricao.Trim();
-            if (req.TecnicoId.HasValue) os.TecnicoId = req.TecnicoId.Value;
-            if (req.Status.HasValue) os.Status = req.Status.Value;
+            if (os == null) return NotFound("Ordem de serviço não encontrada.");
 
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // 1) Apagar Sarquivos físicos das fotos (quando forem locais em /wwwroot/uploads)
+                var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-            os.UpdatedAt = DateTime.UtcNow;
+                foreach (var f in os.Fotos)
+                {
+                    var p = f.Path?.Trim() ?? string.Empty;
 
-            await _db.SaveChangesAsync();
+                    // pula URLs absolutas (CDN etc.)
+                    var isUrl = p.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                             || p.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+                    if (isUrl) continue;
 
-            return NoContent();
+                    // normaliza caminho relativo tipo "/uploads/xyz.jpg"
+                    var rel = p.Replace('\\', '/').TrimStart('/'); // -> "uploads/xyz.jpg"
+                    var full = Path.Combine(webRoot, rel);
+
+                    try
+                    {
+                        if (System.IO.File.Exists(full))
+                            System.IO.File.Delete(full);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                // 2) Remover dependências no banco
+                if (os.Fotos.Any())
+                    _db.OSFotos.RemoveRange(os.Fotos);
+
+                if (os.Checks.Any())
+                    _db.OSChecklists.RemoveRange(os.Checks);
+
+                // 3) Remover a OS
+                _db.OS.Remove(os);
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return NoContent();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                return StatusCode(500, "Falha ao remover a OS e seus anexos.");
+            }
         }
-    }
 
+    }
 
 }

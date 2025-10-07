@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OsApi.Data;
+using OsApi.Domain;
+using OsApi.Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +30,8 @@ builder.Services
           ValidIssuer = builder.Configuration["Jwt:Issuer"],
           ValidAudience = builder.Configuration["Jwt:Audience"],
           IssuerSigningKey = new SymmetricSecurityKey(
-              Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+              Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+          RoleClaimType = ClaimTypes.Role
       };
   });
 
@@ -81,6 +85,20 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<OsDbContext>();
     db.Database.Migrate();
     ChecklistSeed.Run(db);
+
+    // SEED ADMIN
+    if (!await db.Users.AnyAsync(u => u.UserRole == UserRole.Admin))
+    {
+        var admin = new User
+        {
+            Email = "admin@local",
+            Nome = "Admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+            UserRole = UserRole.Admin
+        };
+        db.Users.Add(admin);
+        await db.SaveChangesAsync();
+    }
 }
 
 app.UseStaticFiles();
