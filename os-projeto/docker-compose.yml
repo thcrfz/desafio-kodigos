@@ -10,6 +10,11 @@ services:
     ports: ["3306:3306"]
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   adminer:
     image: adminer
@@ -28,9 +33,10 @@ services:
       Jwt__Audience: osweb
     ports: ["${API_PORT}:${API_PORT}"]
     volumes:
-      # só as evidências (uploads) no caminho da imagem publicada
       - ./uploads:/app/wwwroot/uploads
-    depends_on: [mysql]
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   web:
     # usa o Dockerfile do web; sem bind de código e sem node_modules volume
