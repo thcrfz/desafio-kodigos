@@ -26,8 +26,8 @@
             </thead>
 
             <tbody v-if="items && items.length">
-              <tr v-for="item in items" :key="item.id">
-                <td>{{ item.id }}</td>
+              <tr v-for="(item, index) in items" :key="item.id">
+                <td>{{ index + 1 }}</td>
                 <td class="text-truncate" style="max-width: 320px;">{{ item.titulo }}</td>
                 <td>
                   <span class="badge bg-secondary" v-if="item.status===0">Aberta</span>
@@ -36,7 +36,7 @@
                   <span class="badge bg-light text-dark" v-else>—</span>
                 </td>
                 <td>{{ item.tecnico?.nome ?? '—' }}</td>
-                <td>{{ item.updatedAt }}</td>
+                <td>{{ formatDate(item.updatedAt) }}</td>
                 <td class="text-end">
                   <router-link class="btn btn-sm btn-outline-primary" :to="`/os/${item.id}`">
                     Abrir
@@ -71,4 +71,14 @@ onMounted(async () => {
     
     items.value = data.items as OsListItem[];
 });
+
+function formatDate(dateString: string): string {
+  const dateObject = new Date(dateString);
+  const year = dateObject.getFullYear();
+  const month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+  const day = dateObject.getDate().toString().padStart(2, '0');
+  return `${day}-${month}-${year}`;
+}
+
+
 </script>
