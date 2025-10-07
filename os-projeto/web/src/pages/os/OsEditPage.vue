@@ -1,7 +1,9 @@
 <template>
   <div class="container py-4" v-if="os">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h5 mb-0">OS #{{ os.id }} — {{ os.titulo }}</h1>
+      <h1 class="h5 mb-0">OS #{{ os.id }} — {{ os.titulo }}
+        <span class="badge ms-2" :class="statusClass(os.status)">{{ statusLabel(os.status) }}</span>
+      </h1>
       <router-link to="/os" class="btn btn-outline-secondary">Voltar</router-link>
     </div>
 
@@ -54,10 +56,43 @@
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button class="btn btn-primary" type="submit" :disabled="saving">
+            <button v-if="os.status !== 2" class="btn btn-primary" type="submit" :disabled="saving">
               <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
               Salvar marcações
             </button>
+
+             <button v-if="os.status === 0"
+                class="btn btn-primary"
+                :disabled="actionLoading"
+                @click="startOs">
+                <span v-if="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+                Iniciar execução
+              </button>
+
+            <button v-if="os.status === 1"
+              class="btn btn-success"
+              :disabled="actionLoading"
+              @click="closeOs">
+              <span v-if="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Fechar OS
+            </button>
+
+            <button v-if="os && os.status !== 2"
+                class="btn btn-outline-danger"
+                :disabled="deleting"
+                @click="deleteOs">
+                <span v-if="deleting" class="spinner-border spinner-border-sm me-2"></span>
+              Excluir OS
+            </button>
+
+            <button v-if="os.status === 2 && isAdmin"
+                class="btn btn-warning"
+                :disabled="actionLoading"
+                @click="reopenOs">
+                <span v-if="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Reabrir OS
+            </button>
+
             <router-link to="/os" class="btn btn-light">Cancelar</router-link>
           </div>
 
@@ -72,9 +107,11 @@
 
 </template>
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { api } from "../../api";
+import router from "../../router";
+import { authUser } from "../../auth";
 
 const route = useRoute();
 const osId = Number(route.params.id);
@@ -86,6 +123,13 @@ type CatalogItem = {
     obrigatorio: boolean;
     ativo: boolean;
     ordem: number;
+}
+
+function statusLabel(s: number) {
+  return s === 0 ? "Aberta" : s === 1 ? "Em andamento" : "Fechada";
+}
+function statusClass(s: number) {
+  return s === 0 ? "bg-secondary" : s === 1 ? "bg-info" : "bg-success";
 }
 
 
@@ -103,10 +147,20 @@ const uploading = ref(false);
 const saving = ref(false);
 const error = ref("");
 const ok = ref(false);
-
+const actionLoading = ref(false);
+const deleting = ref(false);
+const user = ref<any>(null);
+const isAdmin = computed(() => Number(user.value?.userRole) === 1);
 
 onMounted(async () => {
     error.value = "";
+
+    try {
+        user.value = JSON.parse(localStorage.getItem("auth_user") || "null");
+    } catch { 
+      user.value = null; 
+    }
+
     try {
         const [catRes, osRes] = await Promise.all([
             api.get("/checklist"),
@@ -151,6 +205,8 @@ onMounted(async () => {
     } catch (e: any) {
         error.value = e?.response?.data ?? "Falha ao carrega os dados."
     }
+
+    
 });
 
 async function saveMarks() {
@@ -158,7 +214,7 @@ async function saveMarks() {
     error.value = "";
     saving.value = true;
     try {
-        const payload = catalog.value.filter((i) => i.tipo !== 3)
+        const payload = catalog.value
             .map((i) => {
                 const m = marks[i.id] || { itemId: i.id };
                 return {
@@ -210,6 +266,82 @@ async function uploadForItem(itemId: number) {
     error.value = e?.response?.data ?? "Falha ao enviar foto.";
   } finally {
     uploading.value = false;
+  }
+}
+
+async function refreshOs() {
+  const osRes = await api.get(`/os/${osId}`);
+  os.value = osRes.data;
+}
+
+
+async function startOs() {
+  error.value = "";
+  actionLoading.value = true;
+  try {
+    await api.post(`/os/${osId}/status/iniciar`);
+    await refreshOs();
+  } catch (e: any) {
+    error.value = e?.response?.data ?? "Falha ao iniciar OS.";
+  } finally {
+    actionLoading.value = false;
+  }
+}
+
+
+async function closeOs() {
+  error.value = "";
+  ok.value = false;
+
+  const hasPending = Object.values(pendingFiles).some(arr => (arr?.length ?? 0) > 0);
+  if (hasPending) {
+    error.value = "Envie as fotos pendentes antes de fechar a OS.";
+    return;
+  }
+
+  actionLoading.value = true;
+  try {
+    await saveMarks();
+
+    await api.post(`/os/${osId}/status/fechar`);
+    await refreshOs();
+    ok.value = true;
+  } catch (e: any) {
+    error.value = e?.response?.data ?? "Falha ao fechar OS.";
+  } finally {
+    actionLoading.value = false;
+  }
+}
+
+
+async function deleteOs() {
+  if (!os.value) return;
+  if (!confirm("Tem certeza que deseja excluir a OS e todos os anexos (fotos e checklist)?")) return;
+
+  deleting.value = true;
+  error.value = "";
+  try {
+    await api.delete(`/os/${osId}`, {
+      data: {},
+    });
+    await router.push("/os");
+  } catch (e: any) {
+    error.value = e?.response?.data ?? "Falha ao excluir a OS.";
+  } finally {
+    deleting.value = false;
+  }
+}
+
+async function reopenOs() {
+  error.value = "";
+  actionLoading.value = true;
+  try {
+    await api.post(`/os/${osId}/status/reabrir`);
+    await refreshOs();
+  } catch (e: any) {
+    error.value = e?.response?.data ?? "Falha ao reabrir OS.";
+  } finally {
+    actionLoading.value = false;
   }
 }
 

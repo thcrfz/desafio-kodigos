@@ -43,6 +43,9 @@ const router = useRouter();
 
 const user = computed(() => authUser.value);
 
+console.log(user);
+
+
 function logout() {
     clearAuth();
     router.push("/login");
